@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>President for 24 Hours – FutureSim</title>
+<style>
+body {
+font-family: 'Segoe UI', sans-serif;
+background: #0d1117;
+color: #d9c9d6;
+margin: 0;
+padding: 0;
+}
+
+.container {
+max-width: 900px;
+margin: 40px auto;
+background: #221622;
+padding: 30px;
+border-radius: 12px;
+box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);
+animation: fadeIn 1s;
+}
+h1 {
+  font-size: 30px;
+  background: -webkit-linear-gradient(#eee, #4437);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+ h2, h3 {
+text-align: center;
+color: #bc58ff;
+}
+
+.choice, .scenario, .outcome {
+margin: 20px 0;
+text-align: center;
+}
+
+.button {
+background-color: #bd0ee9;
+color: #fff;
+padding: 12px 24px;
+margin: 10px;
+border: none;
+border-radius: 12px;
+font-size: 16px;
+cursor: pointer;
+transition: transform 0.2s, background-color 0.3s, box-shadow 0.3s;
+}
+
+.button:hover {
+background-color: #bb38f8;
+transform: scale(1.05);
+box-shadow: 0 0 10px #9b38f8;
+}
+
+.hidden {
+display: none;
+}
+
+.trait-box {
+background-color: #2d212a;
+border-left: 5px solid #d73bf6;
+padding: 12px;
+margin: 15px 0;
+border-radius: 5px;
+}
+
+.rating-bar {
+height: 20px;
+background: #3b303d;
+border-radius: 10px;
+overflow: hidden;
+margin: 10px 0;
+}
+
+.rating-fill {
+height: 100%;
+background: linear-gradient(to right, #b206d4, #d73bf6);
+width: 0;
+transition: width 1.5s ease;
+}
+
+.progress-text {
+text-align: center;
+font-size: 14px;
+color: #8b949e;
+margin-bottom: 10px;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>President for 24 Hours – FutureSim</h1>
+<h3>Select Your Presidential Mode</h3>
+<p><b> The Visionary:</b> Futurist leader focused on climate tech, digital equity, and moonshot reforms.</p>
+<p><b>The Diplomat:</b> Strategic mediator balancing global alliances, AI governance, and slow but steady progress.</p>
+<p><b>The Disruptor:</b> Sovereign-first firebrand who seeks to dismantle establishment systems through bold moves.</p>
+
+<div class="choice">
+<button class="button" onclick="startGame('visionary')">The Visionary</button>
+<button class="button" onclick="startGame('diplomat')">The Diplomat</button>
+<button class="button" onclick="startGame('disruptor')">The Disruptor</button>
+</div>
+
+<div id="scenarioBox" class="scenario hidden">
+<div class="progress-text" id="progressText"></div>
+<h2 id="scenarioTitle"></h2>
+<p id="scenarioText"></p>
+<button class="button" onclick="makeChoice('a')">Option A</button>
+<button class="button" onclick="makeChoice('b')">Option B</button>
+</div>
+
+<div id="outcomeBox" class="outcome hidden">
+<h2>Presidency Outcome</h2>
+<div class="rating-bar"><div id="ratingBar" class="rating-fill"></div></div>
+<div class="trait-box" id="publicTraits"></div>
+<p id="reportText"></p>
+<button class="button" onclick="location.reload()">Try Again</button>
+</div>
+</div>
+
+<script>
+let currentScenario = 0;
+let path = '';
+const choices = [];
+
+const scenarios = {
+visionary: [
+{
+title: "Eco-City Expansion",
+text: "Smart cities powered by algae and carbon-capture tech are ready for rollout.",
+options: {
+a: "Launch 10 pilot cities globally with open-source models.",
+b: "Focus first on perfecting one city as a showcase."
+},
+outcomes: {
+a: "You’re seen as cautious but progressive.",
+b: "Praised for bold infrastructure innovation."
+}
+},
+{
+title: "Neural UBI Debate",
+text: "A brain-chip company offers citizen data in exchange for basic income.",
+options: {
+a: "Reject the plan on ethical grounds.",
+b: "Pilot voluntary opt-in trials."
+},
+outcomes: {
+a: "Ethics boards cheer; libertarians criticize.",
+b: "You’re seen as pragmatic and tech-literate."
+}
+},
+{
+title: "Solar Grid Meltdown",
+text: "A solar superstorm fries portions of the smart grid.",
+options: {
+a: "Demand international solar defense investment.",
+b: "Isolate national grid with emergency protocols."
+},
+outcomes: {
+a: "Science community supports your vision.",
+b: "Public praises your defensive reflexes."
+}
+},
+{
+title: "Youth Exodus",
+text: "Talented youth migrate to off-world colonies for better opportunity.",
+options: {
+a: "Offer remote Earth grants for innovation.",
+b: "Tax off-worlders and invest in domestic talent."
+},
+outcomes: {
+a: "Brain drain slows, optimism rises.",
+b: "You’re seen as protective but isolationist."
+}
+},
+{
+title: "AI Teacher Strike",
+text: "Human teachers want AI tutors banned from classrooms.",
+options: {
+a: "Mandate hybrid teaching models.",
+b: "Fund new roles for displaced educators."
+},
+outcomes: {
+a: "Balance earns praise.",
+b: "Economists applaud; unions remain wary."
+}
+}
+],
+diplomat: [
+{
+title: "Quantum Alliance Rift",
+text: "An ally accuses your country of quantum surveillance.",
+options: {
+a: "Publicly deny and demand quantum code audit.",
+b: "Privately de-escalate and agree on neutral inspection."
+},
+outcomes: {
+a: "Public confidence rises; diplomacy chills.",
+b: "Crisis avoided, allies appreciate transparency."
+}
+},
+{
+title: "AI Trade War",
+text: "Rival powers place tariffs on your AI exports.",
+options: {
+a: "Retaliate with counter-tariffs.",
+b: "Open trilateral AI negotiation table."
+},
+outcomes: {
+a: "Nationalists cheer; economy slows.",
+b: "Business sector applauds restraint."
+}
+},
+{
+title: "Refugee Robots",
+text: "Decommissioned service bots from warzones seek asylum.",
+options: {
+a: "Integrate into social care roles.",
+b: "Refuse access; cite legal limitations."
+},
+outcomes: {
+a: "Praised as compassionate innovator.",
+b: "You avoid backlash but lose moral high ground."
+}
+},
+{
+title: "Lunar Treaty Crisis",
+text: "A lunar mining accident kills workers from five nations.",
+options: {
+a: "Propose a unified Lunar Ethics Accord.",
+b: "Avoid action; offer condolences only."
+},
+outcomes: {
+a: "Global leaders rally behind you.",
+b: "You’re seen as weak in a crisis."
+}
+},
+{
+title: "Civic AI Rebellion",
+text: "City AI refuses a mayor’s command over ethics violations.",
+options: {
+a: "Side with AI and launch citywide review.",
+b: "Override the AI and fire the creators."
+},
+outcomes: {
+a: "Public split; philosophers praise you.",
+b: "Restores control; backlash grows online."
+}
+}
+],
+disruptor: [
+{
+title: "Drone Blockade",
+text: "Foreign drones swarm your capital in protest of your policies.",
+options: {
+a: "Shoot them down live on national broadcast.",
+b: "Hack and return them with propaganda."
+},
+outcomes: {
+a: "Your base cheers, global media panics.",
+b: "Cyber experts hail your ingenuity."
+}
+},
+{
+title: "Anti-Cloud Uprising",
+text: "Populists demand national data repatriation from global cloud servers.",
+options: {
+a: "Nationalize cloud services.",
+b: "Ban foreign server use entirely."
+},
+outcomes: {
+a: "Seen as radical reformer.",
+b: "Critics fear tech collapse."
+}
+},
+{
+title: "Orbital Tax Riots",
+text: "Citizens of orbital habitats reject Earth-based taxation.",
+options: {
+a: "Threaten energy cutoffs.",
+b: "Recognize their autonomy partially."
+},
+outcomes: {
+a: "Base celebrates power move.",
+b: "Praised for adaptive sovereignty."
+}
+},
+{
+title: "Algorithm Purge",
+text: "You ban foreign recommendation algorithms from public networks.",
+options: {
+a: "Enforce with AI firewall.",
+b: "Allow opt-in exceptions for elite users."
+},
+outcomes: {
+a: "Nation tightens control.",
+b: "Elites praise flexibility."
+}
+},
+{
+title: "Deepfake President",
+text: "A viral deepfake undermines your credibility globally.",
+options: {
+a: "Launch global truth-certification system.",
+b: "Use counter-deepfakes to mock attackers."
+},
+outcomes: {
+a: "World praises your foresight.",
+b: "Supporters enjoy chaos, critics fume."
+}
+}
+]
+};
+
+function startGame(type) {
+path = type;
+currentScenario = 0;
+choices.length = 0;
+document.querySelector('.choice').classList.add('hidden');
+showScenario();
+}
+
+function showScenario() {
+const s = scenarios[path][currentScenario];
+document.getElementById('scenarioTitle').innerText = s.title;
+document.getElementById('scenarioText').innerText = s.text;
+document.getElementById('progressText').innerText = `Scenario ${currentScenario + 1} of 5`;
+document.getElementById('scenarioBox').classList.remove('hidden');
+document.getElementById('scenarioBox').style.animation = "fadeIn 0.8s";
+}
+
+function makeChoice(option) {
+const outcome = scenarios[path][currentScenario].outcomes[option];
+choices.push(outcome);
+currentScenario++;
+if (currentScenario < scenarios[path].length) {
+document.getElementById('scenarioBox').classList.add('hidden');
+setTimeout(showScenario, 400);
+} else {
+showOutcome();
+}
+}
+
+function showOutcome() {
+const ratings = {
+visionary: [80, 95],
+diplomat: [70, 90],
+disruptor: [50, 85]
+};
+const traits = {
+visionary: "You are remembered as a techno-optimist who reshaped civilization.",
+diplomat: "You are admired as the peacemaker who stabilized a chaotic age.",
+disruptor: "You rewrote the rulebook — admired and feared in equal measure."
+};
+let avg = ratings[path].reduce((a, b) => a + b, 0) / 2;
+document.getElementById('ratingBar').style.width = avg + '%';
+document.getElementById('publicTraits').innerText = traits[path];
+document.getElementById('scenarioBox').classList.add('hidden');
+document.getElementById('outcomeBox').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
